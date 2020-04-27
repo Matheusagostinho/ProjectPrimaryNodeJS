@@ -1,0 +1,47 @@
+const localStrategy = require('passport-local').Strategy;
+const connection = require('../database/connection');
+const session = require('../controllers/sessionAssociationController');
+const bcrypt = require('bcryptjs');
+
+const associationEmail = session.associationEmail;
+const sociationSenha = session.sociationSenha;
+
+module.exports = function(passport){
+
+    passport.use(new localStrategy({usernameField: 'email'}, (email, password, done) =>{
+        
+        
+        
+        if(!associationEmail){
+            return done(error, false, {message: 'Essa conta nao Existe'})
+        }
+
+        bcrypt.compareSync(password, sociationSenha, (error, beat) =>{
+
+            if(beat){
+                return done(null, user)
+            }else{
+                return done(null, false, {message: 'Senha Incorreta'})
+            }
+        })
+    }))
+
+    passport.serializeUser((user, done)=>{
+
+        console.log('serializando....');
+      
+        done(null, user.id);
+      })
+      
+      passport.deserializeUser((id, done)=>{
+        
+        console.log('deserializando.....');
+        
+        const association = await connection('association')
+        .where("id", id)
+            .first()
+            .then((user)=>{
+            done(null, user)
+        },done)
+    })
+};
